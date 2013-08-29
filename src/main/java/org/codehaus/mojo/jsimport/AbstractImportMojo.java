@@ -551,7 +551,9 @@ public abstract class AbstractImportMojo
                         if ( localRepository != null )
                         {
                             if ( processFileForImportsAndSymbols( new File( localRepository ), targetJsFolder,
-                                                                  artifactFile, fileDependencyGraphModificationTime, null ) )
+                                                              artifactFile, fileDependencyGraphModificationTime,
+                                                              // just provide the found transitive dependencies
+                                                              directArtifactTransitives ) )
                             {
                                 processedFiles.add( artifactFile );
     
