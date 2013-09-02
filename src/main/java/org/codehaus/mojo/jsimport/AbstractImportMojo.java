@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -448,14 +449,53 @@ public abstract class AbstractImportMojo
                 artifactCollector.collect( collectableArtifacts, project.getArtifact(), localRepository,
                                            remoteRepositories, artifactMetadataSource, null, //
                                            Collections.EMPTY_LIST );
+            List<Artifact> minifiedJSArtifacts = new ArrayList<Artifact>(); //Could be a set, but using list for the satisfaction of it being ever so slightly faster (not computing hash)
             for ( Object o : resolutionResult.getArtifacts() )
             {
                 Artifact collectedArtifact = (Artifact) o;
                 collectedArtifacts.add( collectedArtifact );
 
+                if ("min".equals(collectedArtifact.getClassifier()))
+                {
+                    minifiedJSArtifacts.add(collectedArtifact);
+                }
                 // Build up an index of of collected transitive dependencies so that we can we refer back to them as we
                 // process the direct dependencies.
                 indexedCollectedDependencies.put( collectedArtifact.toString(), collectedArtifact );
+            }
+
+            //Make the min/non-min js files mutually exclusive (unless specified to depend on both)
+            for (Artifact minifiedArtifact : minifiedJSArtifacts)
+            {
+                String nonMinifiedString = minifiedArtifact.toString().replace(":min", "");
+                Artifact nonMinifiedArtifact = indexedCollectedDependencies.get(nonMinifiedString);
+                if (null != nonMinifiedArtifact)
+                {
+                    String artifactToRemove;
+                    //There is a conflict, decide which to keep
+                    if (directArtifacts.contains(minifiedArtifact) && directArtifacts.contains(nonMinifiedArtifact))
+                    {
+                        //Both are specified, give 'em both
+                        continue;
+                    }
+                    else if (directArtifacts.contains(minifiedArtifact))
+                    {
+                        //only the minified js is a direct dependency, remove the transitive non-minified js
+                        artifactToRemove = nonMinifiedString;
+                    }
+                    else if (directArtifacts.contains(nonMinifiedArtifact))
+                    {
+                        //only the non-minified js is a direct dependency, remove the transitive minified js
+                        artifactToRemove = minifiedArtifact.toString();
+                    }
+                    else
+                    {
+                        //Both are transitive, favor the non-minified js so that minification can be done later
+                        artifactToRemove = minifiedArtifact.toString();
+                    }
+                    
+                    indexedCollectedDependencies.remove(artifactToRemove);
+                }
             }
 
             if ( getLog().isDebugEnabled() )
