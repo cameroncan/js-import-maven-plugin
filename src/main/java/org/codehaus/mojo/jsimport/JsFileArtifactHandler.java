@@ -64,9 +64,23 @@ public class JsFileArtifactHandler
         }
         else
         {
-            assert artifact.getType().equals( "zip" ) && artifact.getClassifier().equals( "www" );
-            File wwwZipFile = artifact.getFile();
-            files = expandWwwZipIntoTargetFolder( artifact, wwwZipFile, targetFolder, workFolder );
+            //Handle the different possible classifiers
+        	if (artifact.getType().equals( "zip" ) && artifact.getClassifier().equals( "www" ))
+        	{
+                File wwwZipFile = artifact.getFile();
+                files = expandWwwZipIntoTargetFolder( artifact, wwwZipFile, targetFolder, workFolder );
+        	}
+        	else if (artifact.getType().equals( "js" ) && artifact.getClassifier().equals( "min" ))
+        	{
+                files = new ArrayList<File>( 1 );
+                files.add( artifact.getFile() );
+        	}
+        	else
+        	{
+        		//throw new RuntimeException("There was an unexpected artifact-type/classifier combination; type: " + artifact.getType() + ", classifier: " + artifact.getClassifier());
+        		assert false;
+        	}
+            
         }
     }
 
