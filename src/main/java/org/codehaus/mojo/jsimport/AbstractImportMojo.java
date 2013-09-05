@@ -215,6 +215,16 @@ public abstract class AbstractImportMojo
      * @parameter default-value="true"
      */
     private boolean importOnlyFromJSDependencies;
+
+    /**
+     * Force a reload of the dependencies into your ${targetFolder}. This is useful within ide's such as eclipse where a full clean is not performed.
+     * When set to true all js dependencies will be reimported into your ${targetFolder} whereas false(default) will reload only if there have been
+     * updates to the file (after the initial load). 
+     * 
+     * @parameter default-value="false"
+     */
+    private boolean forceJSReload;
+    
     /**
      * true if the standard browser globals should be predefined. @see http://www.jslint.com/lint.html#browser TODO:
      * Provide the other JSLint "assume" options.
@@ -965,8 +975,8 @@ public abstract class AbstractImportMojo
         // recently, or we don't have an entry for it in our dependency graph. The latter can happen if we build a multi
         // module project from the parent folder and then build a specific module from its own folder. File dependencies
         // in these scenarios can come from the module's target folder or the local m2 repo respectively.
-        if ( sourceFile.lastModified() <= fileDependencyGraphModificationTime
-            && fileDependencies.containsKey( sourceFilePath ) )
+        if ( (sourceFile.lastModified() <= fileDependencyGraphModificationTime
+            && fileDependencies.containsKey( sourceFilePath )) && !forceJSReload )
         {
             if ( getLog().isDebugEnabled() )
             {
