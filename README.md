@@ -23,13 +23,16 @@ Documentation
 All of the [documentation of the original plugin](http://mojo.codehaus.org/js-import-maven-plugin/index.html) is still valid, however there are some additional features that I've added and they are described below:
 
 1. Add the capability of the plugin to handle a "min" classifier on the dependency. Example:
+
     	<dependency>
-			<groupId>com.jquery</groupId>
-			<artifactId>jquery</artifactId>
-			<version>1.8.2</version>
-			<type>js</type>
-			<classifier>min</classifier>
-		</dependency>
+      		<groupId>com.jquery</groupId>
+      		<artifactId>jquery</artifactId>
+       		<version>1.8.2</version>
+       		<type>js</type>
+        	<classifier>min</classifier>
+    	</dependency>
+
+
 This will allow you to choose to download the minified version of the library or the non-minified version (e.g. for the dev environment). I have also add the ability to the plugin to do conflict resolution regarding the minified vs. the non-minified versions of the file. They are mutually exclusive and the plugin will resolve any conflicting dependencies. The rules for the resolution are as follows:
   1. If both are specified in the project's pom file (non-transitive dependencies) then both are downloaded.
   2. If one is a transitive dependency, and the other a direct dependency, then the direct dependency is downloaded
