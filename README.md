@@ -11,6 +11,7 @@ This fork was created due to the apparent stale (or slow) state of the original 
 >"We recommend uploading non-minified versions of JS files into a repository. This makes debugging issues with an application significantly easier. Minification is something that can be applied to both the application's artifacts and its depedencies as a separate concern at a later stage in the development cycle."
 
 However, in our case we are using this plugin solely for the purpose of managing and resolving our 3rd party js. For 3rd party libraries I disagree with the above statement:
+
 1. Why recompile/re-minify JS that the developer never makes changes to.
 2. Many creators of js libraries now provide their specific minified version and are taking responsibility of the artifact
 3. In some cases, (such as angularJS) trying to minify their source will not work without special configuration, and tell users not to do this.
