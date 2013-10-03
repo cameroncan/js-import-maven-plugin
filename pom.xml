@@ -8,7 +8,7 @@
 		<version>30</version>
 	</parent>
 
-	<groupId>org.codehaus.mojo</groupId>
+	<groupId>com.github.cameroncan</groupId>
 	<artifactId>js-import-maven-plugin</artifactId>
 	<version>1.0.2-SNAPSHOT</version>
 
@@ -16,22 +16,25 @@
 
 	<name>JavaScript Import Maven Plugin</name>
 	<description>Provides tooling for managing JavaScript dependencies.</description>
-	<inceptionYear>2010</inceptionYear>
+	<inceptionYear>2013</inceptionYear>
 
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
 
-	<ciManagement>
-		<system>Codehaus Bamboo</system>
-		<url>http://bamboo.ci.codehaus.org/browse/MOJO-JSIMP</url>
-	</ciManagement>
-
 	<issueManagement>
-		<system>jira</system>
-		<url>http://jira.codehaus.org/browse/MJSIMP</url>
+		<system>Github</system>
+		<url>http://github.com/cameroncan</url>
 	</issueManagement>
 
+	<developers>
+		<developer>
+			<id>Cam</id>
+			<name>Cam Christiansen</name>
+			<email>cam@cameronchristiansen.com</email>
+		</developer>
+	</developers>
+	
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -40,23 +43,12 @@
 		</license>
 	</licenses>
 	
-	<developers>
-		<developer>
-			<name>Christopher Hunt</name>
-			<organization>Class Action PL</organization>
-			<organizationUrl>http://www.classactionpl.com/</organizationUrl>
-			<roles>
-				<role>Lead Developer</role>
-			</roles>
-		</developer>
-	</developers>
-	
 	<scm>
-		<connection>scm:svn:http://svn.codehaus.org/mojo/tags/js-import-maven-plugin-1.0.1</connection>
-		<developerConnection>scm:svn:https://svn.codehaus.org/mojo/tags/js-import-maven-plugin-1.0.1</developerConnection>
-		<url>http://svn.codehaus.org/mojo/tags/js-import-maven-plugin-1.0.1</url>
+		<connection>scm:git:https://github.com/cameroncan/js-import-maven-plugin.git</connection>
+		<developerConnection>scm:git:https://github.com/cameroncan/js-import-maven-plugin.git</developerConnection>
+		<url>https://github.com/cameroncan/js-import-maven-plugin</url>
 	</scm>
-
+	
 	<properties>
 		<mojo.java.target>1.5</mojo.java.target>
 		<!-- For Velocity filtering - can't use dot notations -->
