@@ -19,24 +19,6 @@ package org.codehaus.mojo.jsimport;
  * under the License.    
  */
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonToken;
@@ -46,11 +28,7 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactCollector;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.maven.artifact.resolver.*;
 import org.apache.maven.artifact.resolver.filter.AndArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
@@ -61,6 +39,16 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.plexus.build.incremental.BuildContext;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Mojo for resolving dependencies either declared using an @import javadoc statement or by declaration of uninitialised
@@ -214,7 +202,7 @@ public abstract class AbstractImportMojo
      * 
      * @parameter default-value="true"
      */
-    private boolean importOnlyFromJSDependencies;
+    private boolean importOnlyFromJSDependencies = true;
 
     /**
      * Force a reload of the dependencies into your ${targetFolder}. This is useful within ide's such as eclipse where a full clean is not performed.
@@ -223,7 +211,7 @@ public abstract class AbstractImportMojo
      * 
      * @parameter default-value="false"
      */
-    private boolean forceJSReload;
+    private boolean forceJSReload = false;
     
     /**
      * true if the standard browser globals should be predefined. @see http://www.jslint.com/lint.html#browser TODO:
