@@ -212,7 +212,14 @@ public abstract class AbstractImportMojo
      * @parameter default-value="false"
      */
     private boolean forceJSReload = false;
-    
+
+    /**
+     * shimConfigs that define configurations for non-AMD enabled javascript libraries.
+     *
+     * @parameter
+     */
+    private List<ShimConfig> shimConfigs = null;
+
     /**
      * true if the standard browser globals should be predefined. @see http://www.jslint.com/lint.html#browser TODO:
      * Provide the other JSLint "assume" options.
@@ -991,10 +998,19 @@ public abstract class AbstractImportMojo
             tokenStream.setTokenSource( lexer );
             writeTokenStream( cs, tokenStream, targetFile );
 
+            //Also parse the shimConfigs to see what other AMD modules are required
+            Set<String> shimDependencies = new HashSet<String>();
+            if (shimConfigs == null) shimConfigs = new ArrayList<ShimConfig>(0);
+            for (ShimConfig shim : shimConfigs)
+            {
+                shimDependencies.addAll(shim.getDependencies());
+            }
+
             if ( getLog().isDebugEnabled() )
             {
                 getLog().debug( "Assigned globals: " + lexer.getAssignedGlobalVars().toString() );
                 getLog().debug( "Unassigned globals: " + lexer.getUnassignedGlobalVars().toString() );
+                getLog().debug( "Unassigned shim globals: " + shimDependencies.toString() );
                 getLog().debug( "Imports: " + lexer.getImportGavs().toString() );
             }
 
@@ -1007,11 +1023,44 @@ public abstract class AbstractImportMojo
                 fileAssignedGlobals.put( assignedGlobalVar, sourceFilePath );
             }
 
+            LinkedHashSet<String> importedDependencies = new LinkedHashSet<String>( lexer.getImportGavs().size() );
+            Set<String> vars = new HashSet<String>( lexer.getUnassignedGlobalVars() );
+
+            // Loop through the shim configs to find the matching artifact
+            for (ShimConfig shim : shimConfigs)
+            {
+                if (vars.contains(shim.getExportName()))
+                {
+                    //We found a match, use it!
+                    Artifact artifactFound = null;
+                    Dependency dependencyFound = matchDirectDependency(shim.getGroupId(), shim.getArtifactId());
+                    if (dependencyFound == null)
+                    {
+                        if (transitiveArtifacts != null)
+                        {
+                            artifactFound = matchTransitiveDependency(shim.getGroupId(), shim.getArtifactId(), transitiveArtifacts);
+                        }
+                    }
+                    else
+                    {
+                        artifactFound = resolveArtifact(dependencyFound);
+                    }
+
+                    if ( artifactFound == null )
+                    {
+                        getLog().error( "Dependency specified as shim not found: " + shim.getGroupId() + ":" + shim.getArtifactId() );
+                        throw new MojoExecutionException( "Build stopping given dependency issue." );
+                    }
+                    importedDependencies.add(artifactFound.getFile().getPath());
+                    //Remove this from the unassignedVars set
+                    vars.remove(shim.getExportName());
+                }
+            }
+
             // For each unassigned variable map it against the file we're
             // dealing with for later reference. An unassigned variable
             // indicates that we want to import a file where the variable is
             // assigned.
-            Set<String> vars = new HashSet<String>( lexer.getUnassignedGlobalVars() );
             if ( assumeABrowser )
             {
                 // If we assume a browser then take out all of the ones declared for it. Otherwise we'll be looking for
@@ -1026,7 +1075,6 @@ public abstract class AbstractImportMojo
             // dependency of this particular js file. We update any existing
             // dependency edges if they exist given that we've determined this
             // part of the graph needs re-construction.
-            LinkedHashSet<String> importedDependencies = new LinkedHashSet<String>( lexer.getImportGavs().size() );
             fileDependencies.put( sourceFilePath, importedDependencies );
 
             for ( ECMAScriptLexer.GAV importGav : lexer.getImportGavs() )
