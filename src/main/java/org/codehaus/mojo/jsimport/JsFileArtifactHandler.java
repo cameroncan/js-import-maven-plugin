@@ -23,6 +23,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -106,7 +107,6 @@ public class JsFileArtifactHandler
             {
                 ZipInputStream zis = new ZipInputStream( new BufferedInputStream( fis ) );
                 ZipEntry entry;
-                boolean firstEntryProcessed = false;
                 int rootFolderPrefixPosn = 0;
                 while ( ( entry = zis.getNextEntry() ) != null )
                 {
@@ -119,49 +119,29 @@ public class JsFileArtifactHandler
                     File entryFile = null;
                     if ( !entryName.endsWith( "js" ) )
                     {
-                        if ( !entry.isDirectory() )
-                        {
-                            entryFile = new File( targetFolder, entryName );
-                        }
-                        else if ( !firstEntryProcessed )
-                        {
-                            // Its a directory and it is the first thing in the zip file. We don't want to bother with
-                            // this directory when creating files as we're more interested in merging it into the
-                            // existing target folder.
-                            rootFolderPrefixPosn = entryName.length();
-                        }
+                    	entryFile = new File( targetFolder, entryName );
                     }
-                    else if ( !entryName.endsWith( "-min.js" ) )
+                    else
                     {
+                    	//We want all js files (minified as well), don't make me minify the js if it is not mine. I don't expect you to compile my code, then why should I do that for you :).
+                    	if (entryName.contains("/"))
+                    	{
+                    		//If the js is nested inside directories, flatten it and use the jsExpansionFolder only
+                        	entryName = entryName.substring(entryName.lastIndexOf('/'));
+                    	}
                         entryFile = new File( jsExpansionFolder, entryName );
                         jsFiles.add( entryFile );
                     }
 
+                    if (entry.isDirectory())
+        			{
+        				entryFile.mkdirs();
+        				continue;
+        			}
+                    
                     // If we have something interesting to inflate.
-                    if ( entryFile != null )
-                    {
-                        entryFile.getParentFile().mkdirs();
-                        FileOutputStream fos = new FileOutputStream( entryFile );
-                        BufferedOutputStream dest = null;
-                        try
-                        {
-                            int count;
-                            final int bufferSize = 2048;
-                            byte data[] = new byte[bufferSize];
-                            dest = new BufferedOutputStream( fos, bufferSize );
-                            while ( ( count = zis.read( data, 0, bufferSize ) ) != -1 )
-                            {
-                                dest.write( data, 0, count );
-                            }
-                            dest.flush();
-                        }
-                        finally
-                        {
-                            dest.close();
-                        }
-                    }
+                    inflateFile(zis, entryFile);
 
-                    firstEntryProcessed = true;
                 }
             }
             finally
@@ -180,15 +160,39 @@ public class JsFileArtifactHandler
             Collection<File> existingFiles = FileUtils.listFiles( expansionFolder, new String[] { "js" }, true );
             for ( File file : existingFiles )
             {
-                if ( !file.getName().endsWith( "-min.js" ) )
-                {
-                    jsFiles.add( file );
-                }
+                jsFiles.add( file );
             }
         }
 
         return jsFiles;
     }
+
+	private void inflateFile(ZipInputStream zis, File entryFile) throws FileNotFoundException, IOException {
+		if ( entryFile != null )
+		{
+			//just in case...
+			entryFile.getParentFile().mkdirs();
+			
+		    FileOutputStream fos = new FileOutputStream( entryFile );
+		    BufferedOutputStream dest = null;
+		    try
+		    {
+		        int count;
+		        final int bufferSize = 2048;
+		        byte data[] = new byte[bufferSize];
+		        dest = new BufferedOutputStream( fos, bufferSize );
+		        while ( ( count = zis.read( data, 0, bufferSize ) ) != -1 )
+		        {
+		            dest.write( data, 0, count );
+		        }
+		        dest.flush();
+		    }
+		    finally
+		    {
+		        dest.close();
+		    }
+		}
+	}
 
     /**
      * @return a list of the files that were found associated with the artifact.

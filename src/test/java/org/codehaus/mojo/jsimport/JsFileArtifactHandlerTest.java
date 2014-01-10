@@ -1,7 +1,10 @@
 package org.codehaus.mojo.jsimport;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertNull;
+import static org.junit.matchers.JUnitMatchers.either;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -68,9 +71,11 @@ public class JsFileArtifactHandlerTest
         JsFileArtifactHandler handler = new JsFileArtifactHandler( artifact, targetFolder, workFolder );
 
         List<File> jsFiles = handler.getFiles();
-        assertEquals( 1, jsFiles.size() );
+        assertEquals( 2, jsFiles.size() );
         File jsFile = jsFiles.get( 0 );
-        assertEquals( "bootstrap-amd-1.4.0-SNAPSHOT.js", jsFile.getName() );
+        assertThat(jsFile.getName(), either(containsString("bootstrap-amd-1.4.0-SNAPSHOT.js")).or(containsString("bootstrap-amd-1.4.0-SNAPSHOT-min.js")));
+        jsFile = jsFiles.get( 1 );
+        assertThat(jsFile.getName(), either(containsString("bootstrap-amd-1.4.0-SNAPSHOT.js")).or(containsString("bootstrap-amd-1.4.0-SNAPSHOT-min.js")));
         jsFile = jsFile.getParentFile();
         assertEquals( "1.0-SNAPSHOT", jsFile.getName() );
         jsFile = jsFile.getParentFile();
@@ -86,9 +91,11 @@ public class JsFileArtifactHandlerTest
         assertEquals( "bootstrap.css", cssFiles[0].getName() );
 
         Collection<File> expandedJsFiles = FileUtils.listFiles( expansionFolder, null, true );
-        assertEquals( 1, expandedJsFiles.size() );
+        assertEquals( 2, expandedJsFiles.size() );
         File expandedJsFile = expandedJsFiles.iterator().next();
-        assertEquals( "bootstrap-amd-1.4.0-SNAPSHOT.js", expandedJsFile.getName() );
+        assertThat(expandedJsFile.getName(), either(containsString("bootstrap-amd-1.4.0-SNAPSHOT.js")).or(containsString("bootstrap-amd-1.4.0-SNAPSHOT-min.js")));
+        expandedJsFile = expandedJsFiles.iterator().next();
+        assertThat(expandedJsFile.getName(), either(containsString("bootstrap-amd-1.4.0-SNAPSHOT.js")).or(containsString("bootstrap-amd-1.4.0-SNAPSHOT-min.js")));
         expandedJsFile = expandedJsFile.getParentFile();
         assertEquals( "1.0-SNAPSHOT", expandedJsFile.getName() );
         expandedJsFile = expandedJsFile.getParentFile();
