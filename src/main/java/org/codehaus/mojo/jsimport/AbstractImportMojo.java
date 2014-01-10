@@ -221,6 +221,14 @@ public abstract class AbstractImportMojo
     private List<ShimConfig> shimConfigs = null;
 
     /**
+     * if the js declares AMD dependencies, this parameter allows it to be ignored. This is useful in projects are not
+     *  (yet) AMD compliant.
+     *
+     *  @parameter default-value="false"
+     */
+    private boolean ignoreAMDDependencies = false;
+
+    /**
      * true if the standard browser globals should be predefined. @see http://www.jslint.com/lint.html#browser TODO:
      * Provide the other JSLint "assume" options.
      * 
@@ -1094,8 +1102,17 @@ public abstract class AbstractImportMojo
                     }
                     if ( artifactFound == null )
                     {
-                        getLog().error( "Dependency not found: " + importGav.groupId + ":" + importGav.artifactId );
-                        throw new MojoExecutionException( "Build stopping given dependency issue." );
+                        if (ignoreAMDDependencies)
+                        {
+                            getLog().warn( "Dependency not found, but ignoring (parameter 'ignoreAMDDependencies'==true): " + importGav.groupId + ":" + importGav.artifactId );
+                            continue;
+                        }
+                        else
+                        {
+                            getLog().error( "Dependency not found: " + importGav.groupId + ":" + importGav.artifactId );
+                            throw new MojoExecutionException( "Build stopping given dependency issue." );
+                        }
+
                     }
                 }
                 else
@@ -1154,9 +1171,16 @@ public abstract class AbstractImportMojo
                 // We've tried pretty hard, but we can't find a dependency. Time to barf.
                 if ( variableAssignedFile == null )
                 {
-                    getLog().error( "Dependency not found: " + variableName + " in file: " + variableDeclFile );
-                    throw new MojoExecutionException( "Build stopping given dependency issue." );
-
+                    if (ignoreAMDDependencies)
+                    {
+                        getLog().warn( "Dependency not found, but ignoring (parameter 'ignoreAMDDependencies'==true): " + variableName + " in file: " + variableDeclFile );
+                        continue;
+                    }
+                    else
+                    {
+                        getLog().error( "Dependency not found: " + variableName + " in file: " + variableDeclFile );
+                        throw new MojoExecutionException( "Build stopping given dependency issue." );
+                    }
                 }
 
                 // Enhance the declaring file's graph of dependencies.
