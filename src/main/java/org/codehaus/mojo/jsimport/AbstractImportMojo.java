@@ -374,7 +374,11 @@ public abstract class AbstractImportMojo
             }
         } );
 
-        // Determine the artifacts to resolve and associate their transitive dependencies.
+		AndArtifactFilter jsonArtifactFilter = new AndArtifactFilter();
+		jsonArtifactFilter.add( new ScopeArtifactFilter( scopeStr ) );
+		jsonArtifactFilter.add( new TypeArtifactFilter( "json" ) );
+
+		// Determine the artifacts to resolve and associate their transitive dependencies.
 
         Map<Artifact, LinkedHashSet<Artifact>> directArtifactWithTransitives =
             new HashMap<Artifact, LinkedHashSet<Artifact>>( dependencies.size() );
@@ -392,7 +396,7 @@ public abstract class AbstractImportMojo
                                                           dependency.getType(), dependency.getClassifier(),
                                                           dependency.getScope() );
 
-            if ( !jsArtifactFilter.include( directArtifact ) && !wwwZipArtifactFilter.include( directArtifact ) && importOnlyFromJSDependencies )
+            if ( !jsArtifactFilter.include( directArtifact ) && !wwwZipArtifactFilter.include( directArtifact ) && !jsonArtifactFilter.include( directArtifact ) && importOnlyFromJSDependencies )
             {
                 continue;
             }
@@ -424,20 +428,20 @@ public abstract class AbstractImportMojo
             for ( Object o : result.getArtifacts() )
             {
                 Artifact resolvedArtifact = (Artifact) o;
-                if ( ( jsArtifactFilter.include( resolvedArtifact ) || wwwZipArtifactFilter.include( resolvedArtifact ) ) && //
+                if ( ( jsArtifactFilter.include( resolvedArtifact ) || wwwZipArtifactFilter.include( resolvedArtifact ) || jsonArtifactFilter.include(resolvedArtifact) ) && //
                     !resolvedArtifact.equals( directArtifact ) )
                 {
                     directTransitiveArtifacts.add( resolvedArtifact );
                 }
             }
 
-            if ( jsArtifactFilter.include( directArtifact ) || wwwZipArtifactFilter.include( directArtifact ) )
+            if ( jsArtifactFilter.include( directArtifact ) || wwwZipArtifactFilter.include( directArtifact ) || jsonArtifactFilter.include(directArtifact) )
             {
                 //Only include the js directArtifacts
                 directArtifacts.add( directArtifact );
             }
             
-            if ( jsArtifactFilter.include( directArtifact ) || wwwZipArtifactFilter.include( directArtifact ) || directTransitiveArtifacts.size() > 0)
+            if ( jsArtifactFilter.include( directArtifact ) || wwwZipArtifactFilter.include( directArtifact ) || jsonArtifactFilter.include(directArtifact) || directTransitiveArtifacts.size() > 0)
             {
                 //Only include the non-js directArtifacts if it has js transitive artifacts
                 directArtifactWithTransitives.put( directArtifact, directTransitiveArtifacts );
@@ -586,7 +590,7 @@ public abstract class AbstractImportMojo
             }
             
             // Now deal with the pom specified dependency.
-            if ( jsArtifactFilter.include( directArtifact ) || wwwZipArtifactFilter.include( directArtifact ) )
+            if ( jsArtifactFilter.include( directArtifact ) || wwwZipArtifactFilter.include( directArtifact ) || jsonArtifactFilter.include(directArtifact))
             {
                 //Do only if it is one of the supported artifact types
                 List<File> artifactFiles =

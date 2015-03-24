@@ -58,7 +58,7 @@ public class JsFileArtifactHandler
     public JsFileArtifactHandler( Artifact artifact, File targetFolder, File workFolder )
         throws IOException
     {
-        if ( artifact.getType().equals( "js" ) )
+		if ( artifact.getType().equals( "js" ) )
         {
             files = new ArrayList<File>( 1 );
             files.add( artifact.getFile() );
@@ -76,12 +76,16 @@ public class JsFileArtifactHandler
                 files = new ArrayList<File>( 1 );
                 files.add( artifact.getFile() );
         	}
+			else if (artifact.getType().equals("json"))
+			{
+				FileUtils.copyFile(artifact.getFile(), new File(targetFolder + "/" + artifact.getFile().getName()));
+			}
         	else
         	{
-        		//throw new RuntimeException("There was an unexpected artifact-type/classifier combination; type: " + artifact.getType() + ", classifier: " + artifact.getClassifier());
+//				throw new RuntimeException("There was an unexpected artifact-type/classifier combination; type: " + artifact.getType() + ", classifier: " + artifact.getClassifier());
         		assert false;
         	}
-            
+
         }
     }
 
