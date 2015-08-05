@@ -229,6 +229,14 @@ public abstract class AbstractImportMojo
     private boolean ignoreAMDDependencies = false;
 
     /**
+     * if there are js files in the www zip file then this parameter, when true, allows the js to be copied as any other
+     *  resource in this folder.
+     *
+     *  @parameter default-value="false"
+     */
+    private boolean allowJSResources = false;
+
+    /**
      * true if the standard browser globals should be predefined. @see http://www.jslint.com/lint.html#browser TODO:
      * Provide the other JSLint "assume" options.
      * 
@@ -676,7 +684,7 @@ public abstract class AbstractImportMojo
             {
                 scopeCompile = false;
             }
-            handler = new JsFileArtifactHandler( artifact, targetFolder, scopeCompile ? compileWorkFolder : workFolder );
+            handler = new JsFileArtifactHandler( artifact, targetFolder, scopeCompile ? compileWorkFolder : workFolder, allowJSResources);
             File expansionFolder = handler.getExpansionFolder();
             if ( expansionFolder != null )
             {

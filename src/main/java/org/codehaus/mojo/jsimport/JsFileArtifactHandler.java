@@ -55,7 +55,7 @@ public class JsFileArtifactHandler
      *            (given that it has been done before etc.).
      * @throws IOException if something goes wrong, particularly in the course of zip file expansion.
      */
-    public JsFileArtifactHandler( Artifact artifact, File targetFolder, File workFolder )
+    public JsFileArtifactHandler( Artifact artifact, File targetFolder, File workFolder, boolean allowJSResources )
         throws IOException
     {
 		if ( artifact.getType().equals( "js" ) )
@@ -69,7 +69,7 @@ public class JsFileArtifactHandler
         	if (artifact.getType().equals( "zip" ) && artifact.getClassifier().equals( "www" ))
         	{
                 File wwwZipFile = artifact.getFile();
-                files = expandWwwZipIntoTargetFolder( artifact, wwwZipFile, targetFolder, workFolder );
+                files = expandWwwZipIntoTargetFolder( artifact, wwwZipFile, targetFolder, workFolder, allowJSResources );
         	}
         	else if (artifact.getType().equals( "js" ) && artifact.getClassifier().equals( "min" ))
         	{
@@ -90,7 +90,7 @@ public class JsFileArtifactHandler
     }
 
     private List<File> expandWwwZipIntoTargetFolder( Artifact artifact, File wwwZipFile, File targetFolder,
-                                                     File workFolder )
+                                                     File workFolder, boolean allowJSResources )
         throws IOException
     {
         List<File> jsFiles = new ArrayList<File>();
@@ -121,7 +121,7 @@ public class JsFileArtifactHandler
 
                     String entryName = entry.getName().substring( rootFolderPrefixPosn );
                     File entryFile = null;
-                    if ( !entryName.endsWith( "js" ) )
+                    if ( !entryName.endsWith( "js" ) || allowJSResources )
                     {
                     	entryFile = new File( targetFolder, entryName );
                     }
