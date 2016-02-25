@@ -71,6 +71,7 @@
 			seem to escape them within the doco. -->
 		<jsContextJs>${context.js}</jsContextJs>
 		<JsMyfolderMytestfileJs>${myfolder/mytestfile.js}</JsMyfolderMytestfileJs>
+		<maven.javadoc.skip>true</maven.javadoc.skip>
 	</properties>
 
 	<dependencies>
