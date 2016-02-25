@@ -585,9 +585,10 @@ public abstract class AbstractImportMojo
                         }
                         else
                         {
-                            throw new MojoExecutionException(
-                                                              "Problem determining local repository for transitive file: "
-                                                                  + transitiveArtifactFile );
+                            processedFiles.add( transitiveArtifactFile );
+//                            throw new MojoExecutionException(
+//                                                              "Problem determining local repository for transitive file: "
+//                                                                  + transitiveArtifactFile );
                         }
                     }
 
@@ -627,15 +628,16 @@ public abstract class AbstractImportMojo
                         }
                         else
                         {
-                            throw new MojoExecutionException( "Problem determining local repository for file: "
-                                + artifactFile );
+                            processedFiles.add(artifactFile);
+//                            throw new MojoExecutionException( "Problem determining local repository for file: "
+//                                + artifactFile );
                         }
                     }
     
                     // Add in our transitives to the dependency graph if they're not
                     // already there.
                     LinkedHashSet<String> existingImports = fileDependencies.get( artifactPath );
-                    if ( existingImports.addAll( transitivesAsImports ) )
+                    if ( null != existingImports && existingImports.addAll( transitivesAsImports ) )
                     {
                         if ( getLog().isDebugEnabled() )
                         {

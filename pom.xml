@@ -10,7 +10,7 @@
 
 	<groupId>com.github.cameroncan</groupId>
 	<artifactId>js-import-maven-plugin</artifactId>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.5-SNAPSHOT</version>
 
 	<packaging>maven-plugin</packaging>
 
