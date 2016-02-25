@@ -18,6 +18,20 @@
 	<description>Provides tooling for managing JavaScript dependencies.</description>
 	<inceptionYear>2013</inceptionYear>
 
+	<distributionManagement>
+		<repository>
+			<id>nexus</id>
+			<name>Nexus Release Repository</name>
+			<url>${NEXUS_REPOSITORIES}/releases</url>
+		</repository>
+		<snapshotRepository>
+			<uniqueVersion>true</uniqueVersion>
+			<id>nexus</id>
+			<name>Nexus Snapshots Repository</name>
+			<url>${NEXUS_REPOSITORIES}/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
